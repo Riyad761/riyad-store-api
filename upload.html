@@ -1,28 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Riyad Store Upload</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riyad Store Upload Panel</title>
+
+    <link rel="stylesheet" href="upload.css">
 </head>
+
 <body>
 
-<h2>Riyad Store Upload Panel</h2>
+    <div class="container">
 
-<input type="text" id="name" placeholder="Command Name"><br><br>
+        <h2>🚀 Riyad Store Upload Panel</h2>
 
-<input type="text" id="author" placeholder="Author"><br><br>
+        <input
+            type="text"
+            id="name"
+            placeholder="Command Name">
 
-<input type="text" id="category" placeholder="Category"><br><br>
+        <input
+            type="text"
+            id="author"
+            placeholder="Author Name">
 
-<input type="text" id="version" value="1.0.0"><br><br>
+        <input
+            type="text"
+            id="category"
+            placeholder="Category">
 
-<textarea id="description" placeholder="Description"></textarea><br><br>
+        <input
+            type="text"
+            id="version"
+            value="1.0.0">
 
-<input type="file" id="file" accept=".js"><br><br>
+        <textarea
+            id="description"
+            placeholder="Description"></textarea>
 
-<button onclick="upload()">Upload</button>
+        <input
+            type="file"
+            id="file"
+            accept=".js">
 
-<script src="upload.js"></script>
+        <button onclick="upload()">
+            Upload Command
+        </button>
+
+        <div id="result"></div>
+
+    </div>
+
+    <script src="upload.js"></script>
 
 </body>
+
 </html>
