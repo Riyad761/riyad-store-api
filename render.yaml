@@ -1,0 +1,17 @@
+# Render Deployment Configuration for Riyad Store API
+services:
+  - type: web
+    name: riyad-store-api
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false

@@ -1,0 +1,6 @@
+{
+  "name": "Riyad Store API",
+  "description": "Production-ready REST API & Store Directory for Riyad Bot Framework with command upload, search, raw code distribution, likes, and download metrics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
