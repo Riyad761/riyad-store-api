@@ -1,5 +1,6 @@
 async function upload() {
     const result = document.getElementById("result");
+    const button = document.querySelector("button");
 
     const name = document.getElementById("name").value.trim();
     const author = document.getElementById("author").value.trim();
@@ -7,7 +8,6 @@ async function upload() {
     const version = document.getElementById("version").value.trim() || "1.0.0";
     const description = document.getElementById("description").value.trim();
     const file = document.getElementById("file").files[0];
-    const button = document.querySelector("button");
 
     result.innerHTML = "";
 
@@ -31,59 +31,57 @@ async function upload() {
         return;
     }
 
-    if (!file.name.endsWith(".js")) {
-        result.innerHTML = "<p class='error'>❌ Only .js files are allowed.</p>";
-        return;
-    }
-
     button.disabled = true;
-    button.innerText = "Uploading...";
+    button.textContent = "Uploading...";
 
     try {
         const rawCode = await file.text();
-
-        const body = {
-            name,
-            author,
-            category,
-            version,
-            description,
-            rawCode,
-            isFeatured: false
-        };
 
         const response = await fetch("/api/store/upload", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({
+                name,
+                author,
+                category,
+                version,
+                description,
+                rawCode,
+                isFeatured: false
+            })
         });
 
-        const data = await response.json();
+        const text = await response.text();
 
-        if (response.ok && data.success) {
-            result.innerHTML =
-                `<p class="success">✅ ${data.message}</p>`;
+        let data;
 
-            document.getElementById("name").value = "";
-            document.getElementById("author").value = "";
-            document.getElementById("category").value = "";
-            document.getElementById("version").value = "1.0.0";
-            document.getElementById("description").value = "";
-            document.getElementById("file").value = "";
-        } else {
-            result.innerHTML =
-                `<p class="error">❌ ${data.message || "Upload failed."}</p>`;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            throw new Error(text);
         }
+
+        if (!response.ok) {
+            throw new Error(data.message || "Upload Failed");
+        }
+
+        result.innerHTML = `<p class="success">✅ ${data.message}</p>`;
+
+        document.getElementById("name").value = "";
+        document.getElementById("author").value = "";
+        document.getElementById("category").value = "";
+        document.getElementById("version").value = "1.0.0";
+        document.getElementById("description").value = "";
+        document.getElementById("file").value = "";
 
     } catch (err) {
         console.error(err);
 
-        result.innerHTML =
-            `<p class="error">❌ ${err.message}</p>`;
+        result.innerHTML = `<p class="error">❌ ${err.message}</p>`;
     }
 
     button.disabled = false;
-    button.innerText = "Upload Command";
+    button.textContent = "Upload Command";
 }
