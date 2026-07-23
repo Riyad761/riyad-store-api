@@ -187,28 +187,68 @@ exports.upload = async (req, res, next) => {
     let newItem = null;
 
     if (isMongoActive()) {
-      const existing = await StoreItem.findOne({ name });
+  const existing = await StoreItem.findOne({ name });
 
-      if (!existing) {
-        const created = await StoreItem.create({
-          name,
-          version: version || "1.0.0",
-          author: author || "Anonymous",
-          category: category || "General",
-          description: description || "",
-          rawCode,
-          isFeatured: Boolean(isFeatured)
-        });
+  if (!existing) {
+    const created = await StoreItem.create({
+      name,
+      version: version || "1.0.0",
+      author: author || "Anonymous",
+      category: category || "General",
+      description: description || "",
+      rawCode,
+      isFeatured: Boolean(isFeatured)
+    });
 
-        newItem = created.toObject();
-      } else {
-        return errorResponse(
-          res,
-          409,
-          "Command already exists. Version compare will be added in the next step."
-        );
-      }
+    newItem = created.toObject();
+  } else {
+    const compare = compareVersions(
+      existing.version || "1.0.0",
+      version || "1.0.0"
+    );
+
+    if (compare > 0) {
+      existing.version = version || existing.version;
+      existing.author = author || existing.author;
+      existing.category = category || existing.category;
+      existing.description = description || existing.description;
+      existing.rawCode = rawCode;
+      existing.isFeatured = Boolean(isFeatured);
+
+      await existing.save();
+
+      return successResponse(
+        res,
+        200,
+        "Command updated to newer version.",
+        existing
+      );
     }
+
+    if (compare === 0) {
+      existing.author = author || existing.author;
+      existing.category = category || existing.category;
+      existing.description = description || existing.description;
+      existing.rawCode = rawCode;
+      existing.isFeatured = Boolean(isFeatured);
+
+      await existing.save();
+
+      return successResponse(
+        res,
+        200,
+        "Command replaced successfully.",
+        existing
+      );
+    }
+
+    return errorResponse(
+      res,
+      409,
+      "Uploaded version is older than the current version."
+    );
+  }
+}
 
     // Always keep memory store updated for cross-sync
     const memItem = inMemoryDb.add({
@@ -258,7 +298,15 @@ exports.update = async (req, res, next) => {
       }
     }
 
-    const memUpdated = inMemoryDb.update(id, { name, version, author, category, description, rawCode, isFeatured });
+const memUpdated = inMemoryDb.update(id, {
+  name,
+  version,
+  author,
+  category,
+  description,
+  rawCode,
+  isFeatured
+});
 
     const finalItem = updated || memUpdated;
 
