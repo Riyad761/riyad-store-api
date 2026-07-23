@@ -174,21 +174,40 @@ exports.getRawCode = async (req, res, next) => {
  */
 exports.upload = async (req, res, next) => {
   try {
-    const { name, version, author, category, description, rawCode, isFeatured } = req.body;
+    const {
+      name,
+      version,
+      author,
+      category,
+      description,
+      rawCode,
+      isFeatured
+    } = req.body;
 
     let newItem = null;
 
     if (isMongoActive()) {
-      const created = await StoreItem.create({
-        name,
-        version: version || '1.0.0',
-        author: author || 'Anonymous',
-        category: category || 'General',
-        description: description || '',
-        rawCode,
-        isFeatured: Boolean(isFeatured),
-      });
-      newItem = created.toObject();
+      const existing = await StoreItem.findOne({ name });
+
+      if (!existing) {
+        const created = await StoreItem.create({
+          name,
+          version: version || "1.0.0",
+          author: author || "Anonymous",
+          category: category || "General",
+          description: description || "",
+          rawCode,
+          isFeatured: Boolean(isFeatured)
+        });
+
+        newItem = created.toObject();
+      } else {
+        return errorResponse(
+          res,
+          409,
+          "Command already exists. Version compare will be added in the next step."
+        );
+      }
     }
 
     // Always keep memory store updated for cross-sync
